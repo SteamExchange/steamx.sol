@@ -1136,13 +1136,12 @@ contract SteamExchange is Context, IERC20, Ownable {
     }
  
     // DEFLATIONARY TAX -- use % times 100 for better accuracy --- just don't forget to divide correctly
-        uint256 LP_MAX_TAX = 3000;
+        uint256 LP_MAX_TAX = 2700;
         uint256 LP_MIN_TAX = 500;
         uint256 NUMBER_OF_DAYS = 31;
-        uint256 _startTimestamp;
- 
-    function getCurrentDayTax(uint256 max, uint256 min, uint256) private view returns(uint256){
-        uint256 day = (block.timestamp - _startTimestamp) / 86400;
+       
+    function getCurrentDayTax(uint256 max, uint256 min, uint256) private view returns (uint256){
+        uint256 day = (block.timestamp - startDate) / 86400;
          if (day > 31){ return min; }
         return min + (31 - day)*(max-min)/31;
     }
@@ -1153,13 +1152,13 @@ contract SteamExchange is Context, IERC20, Ownable {
         return amount * tax / 10000;
  
     }
-        else return 0;
+        else return 5;
     }
     function calculateRfiFee(uint256 amount) internal view returns (uint256){ 
          if (feesEnabled == true) {
         return amount * 5 / 100; 
     }
-        else return 0;
+        else return 5;
     }
     function removeAllFee() private {
         if(_taxFee == 0 && _liquidityFee == 0) return;

@@ -929,7 +929,7 @@ contract SteamExchange is Context, IERC20, Ownable {
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
  
-        // This is where the magic happens ;)
+        // This is where the magic happens ;) courtesy of https://github.com/electro-magic
  
         if (nukeTheWhales) {
             if(from != owner() && to != owner()) {

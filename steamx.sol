@@ -10,13 +10,15 @@ Y88b  d88P    888     888         d8888888888 888   "   888  d88P Y88b
  "Y8888P"     888     8888888888 d88P     888 888       888 d88P   Y88b 
  
  
+ 	#SteamX - https://steamexchange.ca
+	Official Whitepaper: https://steamexchange.ca/whitepaper.pdf
+ 	5% fee is added to the LP
+ 	5% fee automatically distributed to all holders
+    
+ 	For the first 31 days there is a deflationary fee period starting at 30% and decreases by 0.96% every day for 31 days at which point the standard fees apply.
+ 	A unique Anti Whale system to protect the overall health of the project
  
- #SteamExchangeToken
-    5% fee is added to the LP
-    5% fee automatically distributed to all holders
-    A unique Anti Whale system to protect the overall health of the project
- 
-    25% of total supply is divided into 5 Wallets as defined below:
+ 	25% of total supply is divided into 5 Wallets as defined below:
  
 	Research Wallet: 70,000,000,000,000 Steam Exchange Tokens
 	Operations Wallet: 60,000,000,000,000 Steam Exchange Tokens
@@ -28,9 +30,10 @@ Y88b  d88P    888     888         d8888888888 888   "   888  d88P Y88b
 	anti-whale section of the contract below.
 	Every dev transaction will be documented and tracked via BSCScan, and will be added to the
 	Discord Server Channel: #Dev-Wallet-Transactions
+	If at the completion of Steam Exchange, there are tokens remaining in the team wallets, they will be burned.
  
 	The remaining 75% of the tokens will be allocated between Unicrypt and PancakeSwap during 
-	pre-sale and launch.
+	pre-sale and launch. 
 */
  
 // SPDX-License-Identifier: Unlicensed
@@ -1095,9 +1098,9 @@ contract SteamExchange is Context, IERC20, Ownable {
         return (rAmount, rTransferAmount, rFee, tTransferAmount, tFee, tLiquidity);
     }
  
-    function _getTValues(uint256 tAmount, address) private view returns (uint256, uint256, uint256) {
+    function _getTValues(uint256 tAmount, address to) private view returns (uint256, uint256, uint256) {
         uint256 tFee = calculateRfiFee(tAmount);
-        uint256 tLiquidity = calculateLiquidityFee(tAmount);
+        uint256 tLiquidity = calculateLiquidityFee(tAmount, to);
         uint256 tTransferAmount = tAmount.sub(tFee).sub(tLiquidity);
         return (tTransferAmount, tFee, tLiquidity);
     }
@@ -1135,30 +1138,33 @@ contract SteamExchange is Context, IERC20, Ownable {
             _tOwned[address(this)] = _tOwned[address(this)].add(tLiquidity);
     }
  
-    // DEFLATIONARY TAX -- use % times 100 for better accuracy --- just don't forget to divide correctly
-        uint256 LP_MAX_TAX = 2700;
+    // DEFLATIONARY TAX -- use % times 100 for better accuracy --- just don't forget to divide correctly! With the help of 0f0crypto
+    // Check out 0f0crypto's safemoon rewrite: https://github.com/solidity-guru/safetoken
+    // Check out 0f0crypto's solidity support channel for all your troubleshooting needs: https://discord.gg/k3rewGKYmD
+        uint256 LP_MAX_TAX = 2500;
         uint256 LP_MIN_TAX = 500;
         uint256 NUMBER_OF_DAYS = 31;
        
-    function getCurrentDayTax(uint256 max, uint256 min, uint256) private view returns (uint256){
+       function getCurrentDayTax(uint256 max, uint256 min, uint256 nOfDays) private view returns (uint256){
         uint256 day = (block.timestamp - startDate) / 86400;
-         if (day > 31){ return min; }
-        return min + (31 - day)*(max-min)/31;
+         if (day > nOfDays){ return min; }
+        return min + (nOfDays - day)*(max-min)/nOfDays;
+    
     }
  
-   function calculateLiquidityFee(uint256 amount) internal view returns (uint256){
-        if (feesEnabled == true) {
+   function calculateLiquidityFee(uint256 amount, address to) internal view returns (uint256) {
+        if (feesEnabled == true && to == address(uniswapV2Pair))  {
         uint256 tax = getCurrentDayTax(LP_MAX_TAX, LP_MIN_TAX, NUMBER_OF_DAYS);
         return amount * tax / 10000;
  
     }
-        else return 5;
+        else return amount * 5 / 100;
     }
     function calculateRfiFee(uint256 amount) internal view returns (uint256){ 
          if (feesEnabled == true) {
         return amount * 5 / 100; 
     }
-        else return 5;
+        else return 0;
     }
     function removeAllFee() private {
         if(_taxFee == 0 && _liquidityFee == 0) return;
@@ -1225,13 +1231,11 @@ contract SteamExchange is Context, IERC20, Ownable {
     function setrfiWallet(address _address, address account) public onlyOwner() {
         _rfiWallet = _address;
         excludeFromFee(account);
-        excludeFromReward(account);
     }
     
      function setsxWallet(address _address, address account) public onlyOwner() {
         _sxWallet = _address;
         excludeFromFee(account);
-        excludeFromReward(account);
     }
  
     function setSwapAndLiquifyEnabled(bool _enabled) public onlyOwner {

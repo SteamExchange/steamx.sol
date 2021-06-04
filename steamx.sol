@@ -755,7 +755,7 @@ contract SteamExchange is Context, IERC20, Ownable {
  
     bool inSwapAndLiquify;
     bool public swapAndLiquifyEnabled = false;
-    uint256 private minTokensBeforeSwap = 2500000 * 10**_decimals; // 2.5m
+    uint256 private minTokensBeforeSwap = 30000000 * 10**_decimals; // 30m
  
     uint256 startDate;
  
@@ -780,7 +780,7 @@ contract SteamExchange is Context, IERC20, Ownable {
     constructor () {
         _rOwned[_msgSender()] = _rTotal;
  
-         IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E); // Pancake
+         IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3); // Pancake
  
          // Create a uniswap pair for this new token
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
@@ -1138,9 +1138,9 @@ contract SteamExchange is Context, IERC20, Ownable {
             _tOwned[address(this)] = _tOwned[address(this)].add(tLiquidity);
     }
  
-    // DEFLATIONARY TAX -- use % times 100 for better accuracy --- just don't forget to divide correctly! With the help of 0f0crypto
+    /* // DEFLATIONARY TAX -- use % times 100 for better accuracy --- just don't forget to divide correctly! With the help of 0f0crypto
     // Check out 0f0crypto's safemoon rewrite: https://github.com/solidity-guru/safetoken
-    // Check out 0f0crypto's solidity support channel for all your troubleshooting needs: https://discord.gg/k3rewGKYmD
+    // Check out 0f0crypto's solidity support channel for all your troubleshooting needs https://discord.gg/k3rewGKYmD */
         uint256 LP_MAX_TAX = 2500;
         uint256 LP_MIN_TAX = 500;
         uint256 NUMBER_OF_DAYS = 31;
@@ -1151,21 +1151,25 @@ contract SteamExchange is Context, IERC20, Ownable {
         return min + (nOfDays - day)*(max-min)/nOfDays;
     
     }
- 
+    
    function calculateLiquidityFee(uint256 amount, address to) internal view returns (uint256) {
-        if (feesEnabled == true && to == address(uniswapV2Pair))  {
-        uint256 tax = getCurrentDayTax(LP_MAX_TAX, LP_MIN_TAX, NUMBER_OF_DAYS);
-        return amount * tax / 10000;
- 
+        if (feesEnabled == true) {
+            if ( to == address(uniswapV2Pair) )  {
+                uint256 tax = getCurrentDayTax(LP_MAX_TAX, LP_MIN_TAX, NUMBER_OF_DAYS);
+                return amount * tax / 10000;
+            }
+            return amount * _liquidityFee / 100;
+        }
+        return 0;
     }
-        else return amount * 5 / 100;
-    }
-    function calculateRfiFee(uint256 amount) internal view returns (uint256){ 
+    
+   function calculateRfiFee(uint256 amount) internal view returns (uint256){ 
          if (feesEnabled == true) {
-        return amount * 5 / 100; 
+        return amount * _taxFee  / 100; 
     }
         else return 0;
     }
+    
     function removeAllFee() private {
         if(_taxFee == 0 && _liquidityFee == 0) return;
  

@@ -1,5 +1,4 @@
 /*
- 
  .d8888b. 88888888888 8888888888        d8888 888b     d888 Y88b   d88P 
 d88P  Y88b    888     888              d88888 8888b   d8888  Y88b d88P  
 Y88b.         888     888             d88P888 88888b.d88888   Y88o88P   
@@ -8,32 +7,28 @@ Y88b.         888     888             d88P888 88888b.d88888   Y88o88P
       "888    888     888          d88P   888 888  Y8P  888   d88888b   
 Y88b  d88P    888     888         d8888888888 888   "   888  d88P Y88b  
  "Y8888P"     888     8888888888 d88P     888 888       888 d88P   Y88b 
- 
- 
- 	#SteamX - https://steamexchange.ca
-	Official Whitepaper: https://steamexchange.ca/whitepaper.pdf
- 	5% fee is added to the LP
- 	5% fee automatically distributed to all holders
-    
- 	For the first 31 days there is a deflationary fee period starting at 30% and decreases by 0.96% every day for 31 days at which point the standard fees apply.
- 	A unique Anti Whale system to protect the overall health of the project
- 
- 	25% of total supply is divided into 5 Wallets as defined below:
- 
-	Research Wallet: 70,000,000,000,000 Steam Exchange Tokens
-	Operations Wallet: 60,000,000,000,000 Steam Exchange Tokens
-	Infrastructure: 50,000,000,000,000 Steam Exchange Tokens
-	Advertising: 40,000,000,000,000 Steam Exchange Tokens
-	Team: 30,000,000,000,000 Steam Exchange Tokens
- 
+                                                                        
+                                                                        
+                                                                                                                                                                                                                    
+ #SteamExchangeToken
+    5% fee is to be added to the LP
+    5% fee automatically distributed to all holders
+    A unique Anti Whale system to protect the overall health of the project
+    100,000,000,000 created
+    25b to Private private sale 
+    25b to pre-sale
+    25b to launch
+    25b divided into 5 Wallets as defined below:
+	Research Wallet: 7,000,000,000 Steam Exchange Tokens
+	Operations Wallet: 6,000,000,000 Steam Exchange Tokens
+	Infrastructure: 5,000,000,000 Steam Exchange Tokens
+	Advertising: 4,000,000,000 Steam Exchange Tokens
+	Team: 3,000,000,000 Steam Exchange Tokens
+	
 	NOTE: You will be protected from the Dev Wallets above as they will be restricted by the 
 	anti-whale section of the contract below.
 	Every dev transaction will be documented and tracked via BSCScan, and will be added to the
 	Discord Server Channel: #Dev-Wallet-Transactions
-	If at the completion of Steam Exchange, there are tokens remaining in the team wallets, they will be burned.
- 
-	The remaining 75% of the tokens will be allocated between Unicrypt and PancakeSwap during 
-	pre-sale and launch. 
 */
  
 // SPDX-License-Identifier: Unlicensed
@@ -781,8 +776,9 @@ contract SteamExchange is Context, IERC20, Ownable {
         _rOwned[_msgSender()] = _rTotal;
          
         // IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D); // KOVAN
-         IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3); // Pancake
- 
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);  // MAINNET
+        //IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);    // TESTNET
+
          // Create a uniswap pair for this new token
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
@@ -1201,44 +1197,52 @@ contract SteamExchange is Context, IERC20, Ownable {
         _isExcludedFromFee[account] = false;
     }
  
-    function setresearchWallet(address _address, address account) public onlyOwner() {
+ 
+    function setresearchWallet(address _address, address account, address recipient) public onlyOwner() {
         _researchWallet = _address;
-        excludeFromFee(account);
+         excludeFromFee(account);
         excludeFromReward;
+        _transfer(_msgSender(), recipient, 700000000000);
     }
  
-    function setoperationsWallet(address _address, address account) public onlyOwner() {
+    function setoperationsWallet(address _address, address account,address recipient) public onlyOwner() {
         _operationsWallet = _address;
         excludeFromFee(account);
         excludeFromReward;
+        _transfer(_msgSender(), recipient, 600000000000);
     }
  
-    function setinfrastructureWallet(address _address, address account) public onlyOwner() {
+    function setinfrastructureWallet(address _address, address account, address recipient) public onlyOwner() {
         _infrastructureWallet = _address;
         excludeFromFee(account);
-        excludeFromReward(account);
+        excludeFromReward;
+        _transfer(_msgSender(), recipient, 500000000000);
     }
  
-    function setmarketingWallet(address _address, address account) public onlyOwner() {
+    function setmarketingWallet(address _address, address account, address recipient) public onlyOwner() {
         _marketingWallet = _address;
-        excludeFromFee(account);
-        excludeFromReward(account);
+         excludeFromFee(account);
+        excludeFromReward;
+        _transfer(_msgSender(), recipient, 400000000000);
     }
  
-    function setteamWallet(address _address, address account) public onlyOwner() {
+    function setteamWallet(address _address, address account, address recipient) public onlyOwner() {
         _teamWallet = _address;
-        excludeFromFee(account);
-        excludeFromReward(account);
+         excludeFromFee(account);
+        excludeFromReward;
+        _transfer(_msgSender(), recipient, 300000000000);
     }
  
     function setrfiWallet(address _address, address account) public onlyOwner() {
         _rfiWallet = _address;
         excludeFromFee(account);
+        excludeFromReward(account);
     }
     
      function setsxWallet(address _address, address account) public onlyOwner() {
         _sxWallet = _address;
         excludeFromFee(account);
+        excludeFromReward(account);
     }
  
     function setSwapAndLiquifyEnabled(bool _enabled) public onlyOwner {
